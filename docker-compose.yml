@@ -1,0 +1,91 @@
+name: "Google Drive"
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./core:/app
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/custom_db
+      - REDIS_URL=redis://redis:6379/0
+      # - CELERY_BROKER_URL=redis://redis:6379/0
+      # - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+    networks:
+      - main
+
+  # celery:
+  #   build: .
+  #   command: celery -A core worker -l INFO
+  #   volumes:
+  #     - .:/app
+  #   environment:
+  #     - DATABASE_URL=postgresql://postgres:postgres@db:5432/custom_db
+  #     - REDIS_URL=redis://redis:6379/0
+  #     - CELERY_BROKER_URL=redis://redis:6379/0
+  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
+  #   depends_on:
+  #     - web
+  #     - redis
+  #     - db
+  #   networks:
+  #     - main
+
+  # celery-beat:
+  #   build: .
+  #   command: celery -A core beat -l INFO
+  #   volumes:
+  #     - .:/app
+  #   environment:
+  #     - DATABASE_URL=postgresql://postgres:postgres@db:5432/custom_db
+  #     - REDIS_URL=redis://redis:6379/0
+  #     - CELERY_BROKER_URL=redis://redis:6379/0
+  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
+  #   depends_on:
+  #     - web
+  #     - redis
+  #     - db
+  #   networks:
+  #     - main
+      
+  db:
+    image: postgres:17
+    volumes:
+      - custom_postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=custom_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - main
+
+  redis:
+    image: redis:7.2
+    volumes:
+      - redis_data:/data
+    networks:
+      - main
+
+  nginx:
+    image: nginx:1.27
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./media:/app/media
+    depends_on:
+      - web
+    networks:
+      - main
+      
+volumes:
+  custom_postgres_data:
+  redis_data:
+  elasticsearch_data:
+
+networks:
+  main:
+    driver: bridge
