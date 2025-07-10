@@ -43,6 +43,7 @@ BUILTIN_APPS = [
 
 LOCAL_APPS = [
     "globals",
+    'users',
 ]
 
 THIRD_PART_APPS = [
@@ -159,3 +160,6 @@ CACHES = {
         "LOCATION": os.environ.get("REDIS_URL"),
     }
 }
+
+# Custom User
+AUTH_USER_MODEL = 'users.User'
