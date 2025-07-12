@@ -44,6 +44,7 @@ BUILTIN_APPS = [
 LOCAL_APPS = [
     "globals",
     'users',
+    'plan',
 ]
 
 THIRD_PART_APPS = [

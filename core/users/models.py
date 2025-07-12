@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from plan.models import UserStoragePlan
 
 class UserManager (BaseUserManager) : 
 
@@ -25,6 +26,20 @@ class User (AbstractUser) :
 
     full_name = models.CharField(max_length=225)
     email = models.EmailField(unique=True)
+    current_storage = models.FloatField(default=0)
+    storage_plan = models.ForeignKey(
+        UserStoragePlan,
+        on_delete=models.CASCADE,
+        related_name='user_storage',
+        null=True,
+        blank=True
+    )
+
+    @property
+    def max_storage(self) : 
+        if not self.storage_plan:
+            return 15
+        return self.storage_plan.plan.storage_in_giga
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['full_name']
