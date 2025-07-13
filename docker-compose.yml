@@ -9,47 +9,49 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/custom_db
       - REDIS_URL=redis://redis:6379/0
-      # - CELERY_BROKER_URL=redis://redis:6379/0
-      # - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
     depends_on:
       - db
       - redis
     networks:
       - main
 
-  # celery:
-  #   build: .
-  #   command: celery -A core worker -l INFO
-  #   volumes:
-  #     - .:/app
-  #   environment:
-  #     - DATABASE_URL=postgresql://postgres:postgres@db:5432/custom_db
-  #     - REDIS_URL=redis://redis:6379/0
-  #     - CELERY_BROKER_URL=redis://redis:6379/0
-  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
-  #   depends_on:
-  #     - web
-  #     - redis
-  #     - db
-  #   networks:
-  #     - main
+  celery:
+    build: .
+    command: > 
+      sh -c "cd core && celery -A core worker -l INFO"
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/custom_db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    depends_on:
+      - web
+      - redis
+      - db
+    networks:
+      - main
 
-  # celery-beat:
-  #   build: .
-  #   command: celery -A core beat -l INFO
-  #   volumes:
-  #     - .:/app
-  #   environment:
-  #     - DATABASE_URL=postgresql://postgres:postgres@db:5432/custom_db
-  #     - REDIS_URL=redis://redis:6379/0
-  #     - CELERY_BROKER_URL=redis://redis:6379/0
-  #     - CELERY_RESULT_BACKEND=redis://redis:6379/0
-  #   depends_on:
-  #     - web
-  #     - redis
-  #     - db
-  #   networks:
-  #     - main
+  celery-beat:
+    build: .
+    command: > 
+      sh -c "cd core && celery -A core beat -l INFO"
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/custom_db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    depends_on:
+      - web
+      - redis
+      - db
+    networks:
+      - main
       
   db:
     image: postgres:17

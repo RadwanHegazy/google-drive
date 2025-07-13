@@ -1,6 +1,5 @@
 from django.db import models
 
-
 class StoragePlan (models.Model) : 
     name = models.CharField(max_length=225, unique=True)
     storage_in_giga = models.FloatField()
@@ -36,3 +35,32 @@ class UserStoragePlan (models.Model) :
             return self.plan.price_per_year * 12
         else:
             raise ValueError(f"There is no price for current plan : {self.plan.name}")
+
+
+class UserTransaction (models.Model) : 
+    user = models.ForeignKey(
+        'users.User',
+        related_name='user_transcation',
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+    plan = models.ForeignKey(
+        StoragePlan,
+        related_name='user_transaction_plan',
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class StatusChoices (models.TextChoices) : 
+        PENDING = "PENDING", "PENDING"
+        ACCEPTED = "ACCEPTED", "ACCEPTED"
+        CANCELED = "CANCELED", "CANCELED"
+    
+    status = models.CharField(
+        choices=StatusChoices,
+        max_length=20,
+        default=StatusChoices.PENDING
+    )
