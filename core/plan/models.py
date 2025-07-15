@@ -1,3 +1,4 @@
+from uuid import uuid4
 from django.db import models
 
 class StoragePlan (models.Model) : 
@@ -38,6 +39,12 @@ class UserStoragePlan (models.Model) :
 
 
 class UserTransaction (models.Model) : 
+    
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid4
+    )
+    
     user = models.ForeignKey(
         'users.User',
         related_name='user_transcation',
@@ -64,3 +71,21 @@ class UserTransaction (models.Model) :
         max_length=20,
         default=StatusChoices.PENDING
     )
+
+    class PayEvery(models.TextChoices) : 
+        YEAR = 'YEAR', 'YEAR'
+        MONTH = 'MONTH', 'MONTH'
+    
+    pay_every = models.CharField(
+        choices=PayEvery,
+        max_length=10
+    )
+
+    subscribe_amount = models.PositiveIntegerField()
+
+    @property
+    def total_price (self) : 
+        amount = self.subscribe_amount
+        plan = self.plan
+        pay_every = self.pay_every
+        return amount * plan.price_per_month if pay_every == self.PayEvery.MONTH else amount * plan.price_per_year

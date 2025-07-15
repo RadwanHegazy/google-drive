@@ -1,7 +1,7 @@
 from uuid import uuid4
 from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth import get_user_model
-from plan.models import StoragePlan
+from plan.models import StoragePlan, UserTransaction
 
 User = get_user_model()
 
@@ -41,4 +41,19 @@ def create_storage_plan (
         storage_in_giga = storage_in_giga,
         price_per_month = price_per_month,
         price_per_year = price_per_year
+    )
+
+def create_user_transaction (
+    user = None,
+    plan = None,
+    status = UserTransaction.StatusChoices.PENDING,
+    pay_every = UserTransaction.PayEvery.MONTH,
+    subscribe_amount = 1
+) -> UserTransaction : 
+    return UserTransaction.objects.create(
+        user = user or create_user(),
+        plan = plan or create_storage_plan(),
+        status = status,
+        pay_every = pay_every,
+        subscribe_amount = subscribe_amount
     )
