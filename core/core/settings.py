@@ -45,11 +45,14 @@ LOCAL_APPS = [
     "globals",
     'users',
     'plan',
+    'file',
 ]
 
 THIRD_PART_APPS = [
     "rest_framework",
+    'drf_yasg',
 ]
+
 
 INSTALLED_APPS = BUILTIN_APPS + LOCAL_APPS + THIRD_PART_APPS
 
@@ -164,3 +167,19 @@ CACHES = {
 
 # Custom User
 AUTH_USER_MODEL = 'users.User'
+
+
+# Celery settings
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'EET'  
+
+
+# Stripe Settings
+
+STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY")
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
+

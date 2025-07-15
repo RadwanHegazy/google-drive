@@ -1,5 +1,5 @@
+from uuid import uuid4
 from django.db import models
-
 
 class StoragePlan (models.Model) : 
     name = models.CharField(max_length=225, unique=True)
@@ -36,3 +36,56 @@ class UserStoragePlan (models.Model) :
             return self.plan.price_per_year * 12
         else:
             raise ValueError(f"There is no price for current plan : {self.plan.name}")
+
+
+class UserTransaction (models.Model) : 
+    
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid4
+    )
+    
+    user = models.ForeignKey(
+        'users.User',
+        related_name='user_transcation',
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+    plan = models.ForeignKey(
+        StoragePlan,
+        related_name='user_transaction_plan',
+        on_delete=models.SET_NULL,
+        null=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class StatusChoices (models.TextChoices) : 
+        PENDING = "PENDING", "PENDING"
+        ACCEPTED = "ACCEPTED", "ACCEPTED"
+        CANCELED = "CANCELED", "CANCELED"
+    
+    status = models.CharField(
+        choices=StatusChoices,
+        max_length=20,
+        default=StatusChoices.PENDING
+    )
+
+    class PayEvery(models.TextChoices) : 
+        YEAR = 'YEAR', 'YEAR'
+        MONTH = 'MONTH', 'MONTH'
+    
+    pay_every = models.CharField(
+        choices=PayEvery,
+        max_length=10
+    )
+
+    subscribe_amount = models.PositiveIntegerField()
+
+    @property
+    def total_price (self) : 
+        amount = self.subscribe_amount
+        plan = self.plan
+        pay_every = self.pay_every
+        return amount * plan.price_per_month if pay_every == self.PayEvery.MONTH else amount * plan.price_per_year
