@@ -2,6 +2,7 @@ from uuid import uuid4
 from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth import get_user_model
 from plan.models import StoragePlan, UserTransaction
+from file.models import UserFile
 
 User = get_user_model()
 
@@ -57,3 +58,28 @@ def create_user_transaction (
         pay_every = pay_every,
         subscribe_amount = subscribe_amount
     )
+
+def create_user_file (
+    owner = None,
+    name = "test file",
+    content_type = 'images/png',
+    file_size_in_giga = 0.5,
+    is_deleted = False,
+    shared_with = [],
+    file = 'globals/test_materials/test.png'
+) -> UserFile :
+    model = UserFile.objects.create(
+        owner = owner or create_user(),
+        name = name,
+        content_type = content_type,
+        file_size_in_giga = file_size_in_giga,
+        is_deleted = is_deleted,
+        file = file
+    )
+
+    shared_with = shared_with if any(shared_with) else [create_user()]
+    model.shared_with.set(shared_with)
+    model.save()
+
+    return model
+    

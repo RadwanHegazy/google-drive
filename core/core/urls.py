@@ -16,11 +16,11 @@ schema_view = get_schema_view(
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('users/', include('users.apis.urls')),
-    path('plan/', include('plan.apis.urls')),
+   path('admin/', admin.site.urls),
+   path('users/', include('users.apis.urls')),
+   path('plan/', include('plan.apis.urls')),
+   path('file/', include('file.apis.urls')),
 
-
-    path('__docs__/v1/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+   path('__docs__/v1/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 
 ]
