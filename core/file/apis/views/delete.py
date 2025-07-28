@@ -12,3 +12,8 @@ class DeleteUserFielAPI (DestroyAPIView) :
             owner = self.request.user,
             is_deleted = False
         )
+    
+    def perform_destroy(self, instance):
+        instance.is_deleted = True
+        instance.save()
+        
