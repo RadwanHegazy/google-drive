@@ -22,4 +22,6 @@ class UserFile (models.Model) :
 
     file = models.FileField(
         upload_to='uploads',
+        null=True,
+        blank=True
     )

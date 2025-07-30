@@ -3,6 +3,8 @@ from drf_yasg import openapi
 from rest_framework import permissions
 from django.contrib import admin
 from django.urls import path, include
+from core.settings import MEDIA_URL, MEDIA_ROOT
+from django.conf.urls.static import static
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -23,4 +25,4 @@ urlpatterns = [
 
    path('__docs__/v1/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 
-]
+] + static(MEDIA_URL, document_root=MEDIA_ROOT)
