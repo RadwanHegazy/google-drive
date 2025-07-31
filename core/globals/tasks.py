@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import os
 from django.core.cache import cache
 from file.models import UserFile
 from .celery_app import app
@@ -34,7 +35,11 @@ def chunk_collector(user_id) :
         next_chunk_key = chunk_data.get('next', None)
         head = next_chunk_key
 
-    filepath = f"media/uploads/{filename}"
+    folder = f"media/uploads/user_{user.id}"
+    if os.path.exists(folder) is False:
+        os.makedirs(folder)
+
+    filepath = f"{folder}/{filename}"
     with open(filepath, 'wb') as f:
         f.writelines(chunks)
         f.close()
