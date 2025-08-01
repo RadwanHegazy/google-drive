@@ -186,3 +186,35 @@ class TestWebSocketConsumer(ChannelsLiveServerTestCase):
         self.assertEqual(response['status'], 204)
 
         await communicator.disconnect()
+
+    async def test_websocket_send_not_enough_space(self):
+        user = await database_sync_to_async(create_user)()
+        user.current_storage = 15
+        await database_sync_to_async(user.save)()
+        headers = await database_sync_to_async(create_headers)(user)
+        headers = headers['Authorization'].split(" ")[1]
+
+        communicator = WebsocketCommunicator(
+            self.get_application(),
+            f"/ws/session/?token={headers}"
+        )
+        connected, _ = await communicator.connect()
+        self.assertTrue(connected)
+
+        await communicator.send_json_to({
+            'filename': 'test_file.txt',
+            'content_type': 'text/plain'
+        })
+
+        response = await communicator.receive_json_from()
+        self.assertEqual(response['status'], 201)
+
+        chunk_data = self.generate_txt_chunks(0.5)
+        await communicator.send_to(
+            bytes_data=chunk_data
+        )
+
+        response = await communicator.receive_json_from()
+        self.assertEqual(response['status'], 400)
+        
+        await communicator.disconnect()

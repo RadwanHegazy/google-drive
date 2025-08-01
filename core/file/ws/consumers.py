@@ -1,11 +1,12 @@
 from channels.generic.websocket import WebsocketConsumer
 import json
 from globals.chunking.session_handler import SessionHandler
+from users.models import User
 
 class SessionConsumer (WebsocketConsumer) :
 
     def connect(self):
-        self.user = self.scope['user']
+        self.user : User = self.scope['user']
         
         if not self.user.is_authenticated:
             self.close()
@@ -47,6 +48,16 @@ class SessionConsumer (WebsocketConsumer) :
                     'status': 400
                 }))
                 return
+
+            # check if user has free space 
+            bytes_to_gb = len(bytes_data) / (1024 * 1024 * 1024)
+            if bytes_to_gb + self.user.current_storage > self.user.max_storage:
+                self.send(text_data=json.dumps({
+                    'message': 'Not enough storage space.',
+                    'status': 400
+                }))
+                return
+            
             self.session_handler.add_chunk(
                 chunk=bytes_data,
                 chunk_size_in_kb=len(bytes_data) / 1024
